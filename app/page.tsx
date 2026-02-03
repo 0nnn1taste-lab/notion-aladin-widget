@@ -28,7 +28,7 @@ export default function Page() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/aladin/search?query=${encodeURIComponent(query.trim())}`);
+      const res = await fetch(`/api/aladin/search?q=${encodeURIComponent(query.trim())}`);
       const data = await res.json();
 
       if (!res.ok || !data?.ok) {
