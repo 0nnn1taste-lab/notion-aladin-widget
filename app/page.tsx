@@ -28,13 +28,18 @@ export default function Home() {
     try {
       // ✅ API는 q 파라미터 사용
       const res = await fetch(`/api/aladin/search?q=${encodeURIComponent(q.trim())}`);
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok || !data?.ok) {
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      if (!data?.ok) {
         throw new Error(typeof data?.error === "string" ? data.error : "검색 실패");
       }
 
-      setItems(Array.isArray(data.items) ? data.items : []);
+      // ✅ items가 배열 아닐 수도 있어 방어
+      setItems(Array.isArray(data.items) ? data.items.filter(Boolean) : []);
     } catch (e: any) {
       setItems([]);
       setError(e?.message || "검색 오류");
@@ -43,7 +48,13 @@ export default function Home() {
     }
   };
 
-  const onAddToNotion = async (it: BookItem) => {
+  const onAddToNotion = async (it?: BookItem) => {
+    // ✅ undefined 방어 (이거 때문에 title 에러 났던 거)
+    if (!it) {
+      setError("책 정보가 비어있어요. 다시 검색해줘!");
+      return;
+    }
+
     setAddingId(it.itemId);
     setError(null);
 
@@ -52,16 +63,16 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: it.title,
-          author: it.author,
-          publisher: it.publisher,
+          title: it.title ?? "",
+          author: it.author ?? "",
+          publisher: it.publisher ?? "",
           pages: it.pages ?? null,
-          cover: it.cover,
-          link: it.link
+          cover: it.cover ?? "",
+          link: it.link ?? ""
         })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
       if (!res.ok || !data?.ok) {
         throw new Error(
@@ -92,6 +103,7 @@ export default function Home() {
           Notion Book Import
         </h1>
 
+        {/* Search */}
         <div
           style={{
             background: "white",
@@ -139,7 +151,9 @@ export default function Home() {
           </div>
 
           {error ? (
-            <div style={{ marginTop: 10, fontSize: 12, color: "crimson" }}>{error}</div>
+            <div style={{ marginTop: 10, fontSize: 12, color: "crimson", whiteSpace: "pre-wrap" }}>
+              {error}
+            </div>
           ) : null}
         </div>
 
@@ -147,8 +161,7 @@ export default function Home() {
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
           {items.map((it) => {
             // ✅ 커버 고화질: coversum -> cover500
-            const coverHD =
-              it.cover?.replace("/coversum/", "/cover500/") ?? it.cover;
+            const coverHD = it.cover?.replace("/coversum/", "/cover500/") ?? it.cover;
 
             return (
               <div
@@ -176,13 +189,7 @@ export default function Home() {
                 />
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontWeight: 800,
-                      fontSize: 14,
-                      lineHeight: 1.3
-                    }}
-                  >
+                  <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.3 }}>
                     {it.title}
                   </div>
 
