@@ -65,8 +65,12 @@ export default function Page() {
       const data = await res.json();
 
       if (!res.ok || !data?.ok) {
-        throw new Error(data?.error?.message || "노션 등록 실패");
-      }
+  throw new Error(
+    typeof data?.error === "string"
+      ? data.error
+      : JSON.stringify(data?.error ?? data, null, 2)
+  );
+}
     } catch (e: any) {
       setError(e?.message || "알 수 없는 오류");
     } finally {
