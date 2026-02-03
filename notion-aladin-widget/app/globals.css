@@ -1,0 +1,8 @@
+* { box-sizing: border-box; }
+html, body { padding: 0; margin: 0; }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  background: #fafafa;
+  color: #111;
+}
+a { color: inherit; }
