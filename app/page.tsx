@@ -124,7 +124,15 @@ export default function Home() {
               }}
             >
               <img
-                src={it.cover}
+                const coverHD = it.cover?.replace("/coversum/", "/cover500/");
+
+<img
+  src={coverHD}
+  alt={it.title}
+  width={80}
+  height={112}
+  style={{ borderRadius: 12, objectFit: "cover", border: "1px solid #eee" }}
+/>
                 alt={it.title}
                 width={52}
                 height={72}
